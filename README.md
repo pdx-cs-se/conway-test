@@ -18,7 +18,7 @@ once. If you have a working `conway` you can say
 
     python3 conway-test.py ./conway
 
-and you should see successful execution of all three states
+and you should see successful execution of all four states
 of the flasher test.
 
 ## License and Acknowledgements
