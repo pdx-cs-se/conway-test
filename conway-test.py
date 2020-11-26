@@ -41,7 +41,8 @@ def send(f, *keys):
 # Generate a desired screen with indicated characters at the
 # indicated coordinates, and spaces everywhere else.
 class TestScreen(object):
-    def __init__(self, nonblank):
+    def __init__(self, name, nonblank):
+        self.name = name
         cols, rows = sdims
         self.screen = [[
             nonblank[(r, c)] if (r, c) in nonblank else ' '
@@ -56,19 +57,29 @@ class TestScreen(object):
                     return False
         return True
 
+    def test(self, testname, scr):
+        if not self.matches(scr):
+            print(f"{testname} ({self.name}) mismatched")
+            print(self)
+            print("---")
+            print(*scr, sep="\n")
+            exit(1)
+
     def __str__(self):
         return '\n'.join([''.join([c for c in row]) for row in self.screen])
 
-flasher_vertical = TestScreen({
+flasher_vertical = TestScreen("flasher vertical", {
     (1, 1): 'x',
     (2, 1): 'x',
     (3, 1): 'x',
 })
-flasher_horizontal = TestScreen({
+
+flasher_horizontal = TestScreen("flasher horizontal", {
     (2, 0): 'x',
     (2, 1): 'x',
     (2, 2): 'x',
 })
+
 def flasher_test(state, f, scr):
     print(f"state {state}")
     if state == 0:
@@ -76,31 +87,16 @@ def flasher_test(state, f, scr):
         time.sleep(0.05)
         return 1
     if state == 1:
-        if not flasher_vertical.matches(scr):
-            print("vertical failed")
-            print(flasher_vertical)
-            print("---")
-            print(*scr, sep="\n")
-            exit(1)
+        flasher_vertical.test("vertical 1", scr)
         send(f, "p")
         time.sleep(0.1)
         return 2
     if state == 2:
-        if not flasher_horizontal.matches(scr):
-            print("horizontal failed")
-            print(flasher_horizontal)
-            print("---")
-            print(*scr, sep="\n")
-            exit(1)
+        flasher_horizontal.test("horizontal", scr)
         time.sleep(0.1)
         return 3
     if state == 3:
-        if not flasher_vertical.matches(scr):
-            print("vertical(2) failed")
-            print(flasher_vertical)
-            print("---")
-            print(*scr, sep="\n")
-            exit(1)
+        flasher_vertical.test("vertical 2", scr)
         return None
     assert False
 
